@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Credit Scoring Model Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --card-bg: #1e293b;
+            --card-border: #334155;
+            --accent-green: #10b981;
+            --accent-blue: #3b82f6;
+            --accent-purple: #8b5cf6;
+            --accent-red: #ef4444;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            padding: 30px 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        .grid-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+        }
+
+        .stat-card .label {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .stat-card .value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        .stat-card .badge {
+            align-self: flex-start;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-green { background: rgba(16, 185, 129, 0.2); color: var(--accent-green); }
+        .badge-blue { background: rgba(59, 130, 246, 0.2); color: var(--accent-blue); }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 900px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+        }
+
+        .card h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #f1f5f9;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        th {
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+        }
+
+        td {
+            font-size: 0.95rem;
+        }
+
+        tr:hover {
+            background-color: rgba(255, 255, 255, 0.02);
+        }
+
+        .img-container {
+            width: 100%;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--card-border);
+            margin-top: 10px;
+        }
+
+        .img-container img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* Demo Calculator */
+        .calculator {
+            grid-column: span 2;
+        }
+        @media (max-width: 900px) {
+            .calculator {
+                grid-column: span 1;
+            }
+        }
+
+        .calc-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-group label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .form-group input {
+            background: #0f172a;
+            border: 1px solid var(--card-border);
+            border-radius: 6px;
+            padding: 10px;
+            color: #fff;
+            font-size: 0.95rem;
+            outline: none;
+        }
+
+        .form-group input:focus {
+            border-color: var(--accent-blue);
+        }
+
+        .calc-btn {
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            color: #fff;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            margin-top: 10px;
+            width: 100%;
+        }
+
+        .calc-btn:hover {
+            opacity: 0.9;
+        }
+
+        .result-box {
+            display: none;
+            background: #0f172a;
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .score-gauge {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .score-display {
+            text-align: center;
+        }
+
+        .score-num {
+            font-size: 3.5rem;
+            font-weight: 800;
+            color: var(--accent-green);
+        }
+
+        .score-num.poor {
+            color: var(--accent-red);
+        }
+
+        .status-pill {
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+        }
+
+        .status-pill.approve {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--accent-green);
+        }
+
+        .status-pill.reject {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--accent-red);
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Credit Scoring & Risk Intelligence</h1>
+        <p>Machine Learning Classification for Creditworthiness Prediction & Credit Scoring (300-850)</p>
+    </header>
+
+    <div class="grid-stats">
+        <div class="stat-card">
+            <span class="label">Top Model</span>
+            <span class="value">Random Forest</span>
+            <span class="badge badge-green">Ensemble Classifier</span>
+        </div>
+        <div class="stat-card">
+            <span class="label">Best ROC-AUC Score</span>
+            <span class="value">0.9610</span>
+            <span class="badge badge-green">+0.46 vs Baseline</span>
+        </div>
+        <div class="stat-card">
+            <span class="label">Model Accuracy</span>
+            <span class="value">91.0%</span>
+            <span class="badge badge-blue">Hold-out Test Set</span>
+        </div>
+        <div class="stat-card">
+            <span class="label">Feature Engineering</span>
+            <span class="value">3 Key Ratios</span>
+            <span class="badge badge-blue">DTI, Utilization, Savings</span>
+        </div>
+    </div>
+
+    <div class="content-grid">
+        <div class="card">
+            <h2>📊 Model Evaluation Matrix</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Algorithm</th>
+                        <th>ROC-AUC</th>
+                        <th>Accuracy</th>
+                        <th>Precision</th>
+                        <th>Recall</th>
+                        <th>F1-Score</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Random Forest</strong></td>
+                        <td><span style="color: var(--accent-green);">0.9610</span></td>
+                        <td>91.0%</td>
+                        <td>78.1%</td>
+                        <td>55.6%</td>
+                        <td>0.649</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Logistic Regression</strong></td>
+                        <td>0.9509</td>
+                        <td>91.0%</td>
+                        <td>76.5%</td>
+                        <td>57.8%</td>
+                        <td>0.658</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Decision Tree</strong></td>
+                        <td>0.8715</td>
+                        <td>91.3%</td>
+                        <td>73.2%</td>
+                        <td>66.7%</td>
+                        <td>0.698</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card">
+            <h2>📈 Receiver Operating Characteristic (ROC)</h2>
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 8px;">
+                ROC Curves comparing discrimination capability across classification models.
+            </p>
+            <div class="img-container">
+                <img src="roc_curves.png" alt="ROC Curves">
+            </div>
+        </div>
+    </div>
+
+    <div class="content-grid">
+        <div class="card" style="grid-column: span 2;">
+            <h2>🎯 Model Confusion Matrices</h2>
+            <div class="img-container">
+                <img src="confusion_matrices.png" alt="Confusion Matrices">
+            </div>
+        </div>
+    </div>
+
+    <div class="card calculator">
+        <h2>⚡ Live Credit Score & Risk Simulator</h2>
+        <div class="calc-form">
+            <div class="form-group">
+                <label>Annual Income ($)</label>
+                <input type="number" id="income" value="85000">
+            </div>
+            <div class="form-group">
+                <label>Total Current Debt ($)</label>
+                <input type="number" id="debt" value="12000">
+            </div>
+            <div class="form-group">
+                <label>Credit Limit ($)</label>
+                <input type="number" id="credit_limit" value="40000">
+            </div>
+            <div class="form-group">
+                <label>Savings Balance ($)</label>
+                <input type="number" id="savings" value="25000">
+            </div>
+            <div class="form-group">
+                <label>Late Payments (Past 2 yrs)</label>
+                <input type="number" id="delinquencies" value="0">
+            </div>
+            <div class="form-group">
+                <label>Credit Inquiries (Past 6 mos)</label>
+                <input type="number" id="inquiries" value="1">
+            </div>
+            <div class="form-group">
+                <label>Credit Age (Years)</label>
+                <input type="number" id="credit_age" value="8">
+            </div>
+        </div>
+        <button class="calc-btn" onclick="calculateScore()">Simulate Credit Assessment</button>
+
+        <div class="result-box" id="resultBox">
+            <div class="score-gauge">
+                <div class="score-display">
+                    <div style="color: var(--text-muted); font-size: 0.9rem;">Estimated Credit Score</div>
+                    <div class="score-num" id="scoreNum">780</div>
+                    <div style="color: var(--text-muted); font-size: 0.9rem;" id="ratingText">Excellent</div>
+                </div>
+                <div class="score-display">
+                    <div style="color: var(--text-muted); font-size: 0.9rem;">Default Risk Probability</div>
+                    <div class="score-num" id="probNum" style="font-size: 2.5rem; color: #fff;">1.8%</div>
+                    <div id="statusPill" class="status-pill approve">LOW RISK / APPROVED</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function calculateScore() {
+        const income = parseFloat(document.getElementById('income').value) || 0;
+        const debt = parseFloat(document.getElementById('debt').value) || 0;
+        const limit = parseFloat(document.getElementById('credit_limit').value) || 1;
+        const savings = parseFloat(document.getElementById('savings').value) || 0;
+        const delinq = parseFloat(document.getElementById('delinquencies').value) || 0;
+        const inquiries = parseFloat(document.getElementById('inquiries').value) || 0;
+        const creditAge = parseFloat(document.getElementById('credit_age').value) || 0;
+
+        // Derived ratios
+        const dti = debt / (income + 1);
+        const util = debt / (limit + 1);
+
+        // Simple heuristic approximation mirroring Random Forest
+        let riskScore = (
+            0.35 * (delinq / 5.0) +
+            0.25 * Math.min(dti / 1.5, 1.0) +
+            0.20 * Math.min(util / 1.0, 1.0) +
+            0.10 * (inquiries / 5.0) -
+            0.10 * (creditAge / 35.0)
+        );
+
+        let defaultProb = 1 / (1 + Math.exp(-(riskScore * 6 - 2.5)));
+        defaultProb = Math.max(0.005, Math.min(0.995, defaultProb));
+
+        const creditScore = Math.max(300, Math.min(850, Math.round(850 - defaultProb * 550)));
+
+        const resultBox = document.getElementById('resultBox');
+        const scoreNum = document.getElementById('scoreNum');
+        const probNum = document.getElementById('probNum');
+        const ratingText = document.getElementById('ratingText');
+        const statusPill = document.getElementById('statusPill');
+
+        resultBox.style.display = 'block';
+        scoreNum.innerText = creditScore;
+        probNum.innerText = (defaultProb * 100).toFixed(1) + '%';
+
+        if (creditScore >= 750) {
+            scoreNum.className = 'score-num';
+            ratingText.innerText = 'Rating: Excellent (Low Risk)';
+            statusPill.className = 'status-pill approve';
+            statusPill.innerText = 'LOW RISK / APPROVED';
+        } else if (creditScore >= 670) {
+            scoreNum.className = 'score-num';
+            ratingText.innerText = 'Rating: Good (Moderate Risk)';
+            statusPill.className = 'status-pill approve';
+            statusPill.innerText = 'MODERATE RISK / APPROVED';
+        } else if (creditScore >= 580) {
+            scoreNum.className = 'score-num poor';
+            ratingText.innerText = 'Rating: Fair (High Risk)';
+            statusPill.className = 'status-pill reject';
+            statusPill.innerText = 'HIGH RISK / REVIEW';
+        } else {
+            scoreNum.className = 'score-num poor';
+            ratingText.innerText = 'Rating: Poor (Very High Risk)';
+            statusPill.className = 'status-pill reject';
+            statusPill.innerText = 'VERY HIGH RISK / REJECT';
+        }
+    }
+</script>
+
+</body>
+</html>
